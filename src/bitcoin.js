@@ -1,3 +1,13 @@
+(function (exports) {
+  var Bitcoin = exports;
+
+  if ('object' !== typeof module) {
+    Bitcoin.EventEmitter = EventEmitter;
+  }
+})(
+  'object' === typeof module ? module.exports : (window.Bitcoin = {})
+);
+
 /*
   function makeKeypair()
   {

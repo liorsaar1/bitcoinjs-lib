@@ -2,9 +2,6 @@
 
 // Requires ec.js, jsbn.js, and jsbn2.js
 
-var ECCurveFp = require('./ec');
-var BigInteger = require('./jsbn');
-
 // ----------------
 // X9ECParameters
 
@@ -174,5 +171,3 @@ function getSECCurveByName(name) {
     if(name == "secp256r1") return secp256r1();
     return null;
 }
-
-module.exports = getSECCurveByName;
