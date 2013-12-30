@@ -24,6 +24,8 @@ export FILES="\
     $SRCDIR/src/txdb.js \
     $SRCDIR/src/bitcoin.js"
 
+mkdir -p build
+
 echo "Building build/bitcoinjs-lib.js"
 cat $FILES > build/bitcoinjs-lib.js 
 echo "Building build/bitcoinjs-lib.min.js"
