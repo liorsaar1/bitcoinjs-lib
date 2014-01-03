@@ -67,6 +67,10 @@
     }
   };
 
+  Transaction.prototype.clearInputs = function (tx) {
+    this.ins = [];
+  };
+
   /**
    * Serialize this transaction.
    *
@@ -685,5 +689,9 @@
         script: Bitcoin.Script.createOutputScript(address)
       }));
     }
+  };
+
+  Transaction.prototype.clearOutputs = function (tx) {
+    this.outs = [];
   };
 })();
