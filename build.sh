@@ -3,8 +3,6 @@
 export SRCDIR=.
 #    $SRCDIR/src/crypto-js/src/SHA1.js \
 #    $SRCDIR/src/crypto-js/src/MD5.js \
-#    $SRCDIR/src/crypto-js/src/PBKDF2.js \
-#    $SRCDIR/src/crypto-js/src/HMAC.js \
 
 export FILES="\
     $SRCDIR/src/header.js \
@@ -14,8 +12,12 @@ export FILES="\
     $SRCDIR/src/crypto-js/src/BlockModes.js \
     $SRCDIR/src/crypto-js/src/SHA256.js \
     $SRCDIR/src/crypto-js/src/AES.js \
+    $SRCDIR/src/crypto-js/src/PBKDF2.js \
+    $SRCDIR/src/crypto-js/src/HMAC.js \
 
     $SRCDIR/src/crypto-js-etc/ripemd160.js \
+
+    $SRCDIR/src/node-scrypt.js \
 
     $SRCDIR/src/jsbn/rng.js \
     $SRCDIR/src/jsbn/jsbn.js \
