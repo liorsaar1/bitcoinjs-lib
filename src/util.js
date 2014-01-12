@@ -220,6 +220,16 @@ Bitcoin.Util = {
    */
   sha256ripe160: function (data) {
     return Crypto.RIPEMD160(Crypto.SHA256(data, {asBytes: true}), {asBytes: true});
+  },
+
+  /**
+   * Calculate SHA256(SHA256(data)).
+   *
+   * Takes an arbitrary byte array as inputs and returns the doubly hashed
+   * data as a byte array.
+   */
+  dsha256: function (data) {
+    return Crypto.SHA256(Crypto.SHA256(data, { asBytes: true }), { asBytes: true });
   }
 };
 

@@ -563,3 +563,170 @@ test("stringToBase58", function() {
   throws(function() { Bitcoin.Base58.encodeFromString(1234); }, 'integer input throws');
   throws(function() { Bitcoin.Base58.encodeFromString([1,2,3,4]); }, 'array input throws');
 });
+
+//
+// Testing Scrypt
+// -----------------------------------------------------------------------------
+module("Scrypt");
+
+test("basic hashing", function() {
+  // Tests from http://tools.ietf.org/html/draft-josefsson-scrypt-kdf-00#page-9
+  var tests = [
+    { 
+      password: '',
+      salt: '',
+      N: 16,
+      r: 1,
+      p: 1,
+      dkLen: 64,
+      result: [
+        0x77, 0xd6, 0x57, 0x62, 0x38, 0x65, 0x7b, 0x20, 0x3b, 0x19, 0xca, 0x42, 0xc1, 0x8a, 0x04, 0x97,
+        0xf1, 0x6b, 0x48, 0x44, 0xe3, 0x07, 0x4a, 0xe8, 0xdf, 0xdf, 0xfa, 0x3f, 0xed, 0xe2, 0x14, 0x42,
+        0xfc, 0xd0, 0x06, 0x9d, 0xed, 0x09, 0x48, 0xf8, 0x32, 0x6a, 0x75, 0x3a, 0x0f, 0xc8, 0x1f, 0x17,
+        0xe8, 0xd3, 0xe0, 0xfb, 0x2e, 0x0d, 0x36, 0x28, 0xcf, 0x35, 0xe2, 0x0c, 0x38, 0xd1, 0x89, 0x06,
+      ]
+    },
+    { 
+      password: 'password',
+      salt: 'NaCl',
+      N: 1024,
+      r: 8,
+      p: 16,
+      dkLen: 64,
+      result: [
+        0xfd, 0xba, 0xbe, 0x1c, 0x9d, 0x34, 0x72, 0x00, 0x78, 0x56, 0xe7, 0x19, 0x0d, 0x01, 0xe9, 0xfe,
+        0x7c, 0x6a, 0xd7, 0xcb, 0xc8, 0x23, 0x78, 0x30, 0xe7, 0x73, 0x76, 0x63, 0x4b, 0x37, 0x31, 0x62,
+        0x2e, 0xaf, 0x30, 0xd9, 0x2e, 0x22, 0xa3, 0x88, 0x6f, 0xf1, 0x09, 0x27, 0x9d, 0x98, 0x30, 0xda,
+        0xc7, 0x27, 0xaf, 0xb9, 0x4a, 0x83, 0xee, 0x6d, 0x83, 0x60, 0xcb, 0xdf, 0xa2, 0xcc, 0x06, 0x40,
+      ]
+    },
+    { 
+      password: 'pleaseletmein',
+      salt: 'SodiumChloride',
+      N: 16384,
+      r: 8,
+      p: 1,
+      dkLen: 64,
+      result: [
+        0x70, 0x23, 0xbd, 0xcb, 0x3a, 0xfd, 0x73, 0x48, 0x46, 0x1c, 0x06, 0xcd, 0x81, 0xfd, 0x38, 0xeb,
+        0xfd, 0xa8, 0xfb, 0xba, 0x90, 0x4f, 0x8e, 0x3e, 0xa9, 0xb5, 0x43, 0xf6, 0x54, 0x5d, 0xa1, 0xf2,
+        0xd5, 0x43, 0x29, 0x55, 0x61, 0x3f, 0x0f, 0xcf, 0x62, 0xd4, 0x97, 0x05, 0x24, 0x2a, 0x9a, 0xf9,
+        0xe6, 0x1e, 0x85, 0xdc, 0x0d, 0x65, 0x1e, 0x40, 0xdf, 0xcf, 0x01, 0x7b, 0x45, 0x57, 0x58, 0x87,
+      ]
+    }
+  ];
+
+  for (var index = 0; index < tests.length; ++index) {
+    var test = tests[index];
+    var startTime = new Date();
+    var hash = Bitcoin.scrypt(test.password, test.salt, test.N, test.r, test.p, test.dkLen);
+    var endTime = new Date();
+    console.log('Scrypt Test #' + index + ': ' +(endTime - startTime)+' ms');
+    deepEqual(hash, test.result, 'Scrypt test #' + index);
+  }
+});
+
+
+//
+// Testing BIP38 Key Encryption/Decryption
+// -----------------------------------------------------------------------------
+module("bip38");
+
+test("Classes", function () {
+  expect(1);
+  ok(Bitcoin.BIP38, "Bitcoin.BIP38");
+});
+
+test("No compression, no EC multiply #1", function () {
+  expect(2);
+
+  var wif = "5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR";
+  var pw = "TestingOneTwoThree";
+  var encrypted = "6PRVWUbkzzsbcVac2qwfssoUJAN1Xhrg6bNk8J7Nzm5H7kxEbn2Nh2ZoGg";
+
+  var decrypted = new Bitcoin.ECKey(wif).getEncryptedFormat(pw);
+  equal(decrypted, encrypted, "Key encrypted successfully.");
+  equal(Bitcoin.ECKey.decodeEncryptedFormat(decrypted, pw).getWalletImportFormat(), wif, "Key decrypted successfully.");
+});
+
+test("No compression, no EC multiply #2", function () {
+  expect(2);
+
+  var wif = "5HtasZ6ofTHP6HCwTqTkLDuLQisYPah7aUnSKfC7h4hMUVw2gi5";
+  var pw = "Satoshi";
+  var encrypted = "6PRNFFkZc2NZ6dJqFfhRoFNMR9Lnyj7dYGrzdgXXVMXcxoKTePPX1dWByq";
+
+  var decrypted = new Bitcoin.ECKey(wif).getEncryptedFormat(pw);
+  equal(decrypted, encrypted, "Key encrypted successfully.");
+  equal(Bitcoin.ECKey.decodeEncryptedFormat(decrypted, pw).getWalletImportFormat(), wif, "Key decrypted successfully.");
+});
+
+
+test("Compression, no EC multiply #1", function () {
+  expect(2);
+
+  var wif = "L44B5gGEpqEDRS9vVPz7QT35jcBG2r3CZwSwQ4fCewXAhAhqGVpP";
+  var pw = "TestingOneTwoThree";
+  var encrypted = "6PYNKZ1EAgYgmQfmNVamxyXVWHzK5s6DGhwP4J5o44cvXdoY7sRzhtpUeo";
+
+  var decrypted = new Bitcoin.ECKey(wif).getEncryptedFormat(pw);
+  equal(decrypted, encrypted, "Key encrypted successfully.");
+  equal(Bitcoin.ECKey.decodeEncryptedFormat(decrypted, pw).getWalletImportFormat(), wif, "Key decrypted successfully.");
+});
+
+test("Compression, no EC multiply #2", function () {
+  expect(2);
+
+  var wif = "KwYgW8gcxj1JWJXhPSu4Fqwzfhp5Yfi42mdYmMa4XqK7NJxXUSK7";
+  var pw = "Satoshi";
+  var encrypted = "6PYLtMnXvfG3oJde97zRyLYFZCYizPU5T3LwgdYJz1fRhh16bU7u6PPmY7";
+
+  var decrypted = new Bitcoin.ECKey(wif).getEncryptedFormat(pw);
+  equal(decrypted, encrypted, "Key encrypted successfully.");
+  equal(Bitcoin.ECKey.decodeEncryptedFormat(decrypted, pw).getWalletImportFormat(), wif, "Key decrypted successfully.");
+});
+
+
+// NOTE: Testing BIP38 keys generated with EC-multiply is difficult due to their non-deterministic nature.
+//       This test only verifies that a new address/key can be generated with a password and later decrypted
+//       with the same password.
+
+test("EC multiply, no compression, no lot/sequence numbers", function () {
+  expect(2);
+
+  var pw = "TestingOneTwoThree";
+  var intermediate = Bitcoin.BIP38.generateIntermediate(pw);
+  var encryptedKey = Bitcoin.BIP38.newAddressFromIntermediate(intermediate, false);
+  var decryptedKey = Bitcoin.BIP38.decode(encryptedKey.bip38PrivateKey, pw);
+
+  ok(Bitcoin.ECKey.isBIP38Format(encryptedKey.bip38PrivateKey), "New EC-multiplied key appears to be valid BIP38 format.");
+  equal(encryptedKey.address.toString(), decryptedKey.getBitcoinAddress().toString(), "Address of new EC-multiplied key matches address after decryption with password.");
+});
+
+test("EC multiply, no compression, lot/sequence numbers", function () {
+  expect(6);
+
+  var pw = "MOLON LABE", lot = 263183, seq = 1;
+  var wrongAddress = '1Lurmih3KruL4xDB5FmHof38yawNtP9oGf', wrongPw = "MOLON LABIA", wrongConf = 'cfrm38V8G4qq2ywYEFfWLD5Cc6msj9UwsG2Mj4Z6QdGJAFQpdatZLavkgRd1i4iBMdRngDqDs51';
+
+  // Generate intermediate
+  var intermediate = Bitcoin.BIP38.generateIntermediate(pw, lot, seq);
+
+  // Encrypt then decrypt
+  var encryptedKey = Bitcoin.BIP38.newAddressFromIntermediate(intermediate, false);
+  var decryptedKey = Bitcoin.BIP38.decode(encryptedKey.bip38PrivateKey, pw);
+
+  ok(Bitcoin.ECKey.isBIP38Format(encryptedKey.bip38PrivateKey), "New EC-multiplied key appears to be valid BIP38 format.");
+  equal(encryptedKey.address.toString(), decryptedKey.getBitcoinAddress().toString(), "Address of new EC-multiplied key matches address after decryption with password.");
+
+  // Confirm
+  var confirmTrue = Bitcoin.BIP38.verifyNewAddressConfirmation(encryptedKey.address, encryptedKey.confirmation, pw);
+  var confirmFalse1 = Bitcoin.BIP38.verifyNewAddressConfirmation(wrongAddress, encryptedKey.confirmation, pw);
+  var confirmFalse2 = Bitcoin.BIP38.verifyNewAddressConfirmation(encryptedKey.address.toString(), wrongConf, pw);
+  var confirmFalse3 = Bitcoin.BIP38.verifyNewAddressConfirmation(encryptedKey.address.toString(), encryptedKey.confirmation, wrongPw);
+
+  ok(confirmTrue, "Confirmation successful with good address, confirmation code, and password.");
+  ok(!confirmFalse1, "Confirmation unsuccessful when given wrong address.");
+  ok(!confirmFalse2, "Confirmation unsuccessful when given wrong confirmation code.");
+  ok(!confirmFalse3, "Confirmation unsuccessful when given wrong password.");
+});
