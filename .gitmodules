@@ -1,0 +1,3 @@
+[submodule "src/crypto-js"]
+	path = src/crypto-js
+	url = git@github.com:scintill/crypto-js.git

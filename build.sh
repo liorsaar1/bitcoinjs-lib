@@ -1,12 +1,22 @@
 #!/bin/sh
 
 export SRCDIR=.
+#    $SRCDIR/src/crypto-js/src/SHA1.js \
+#    $SRCDIR/src/crypto-js/src/MD5.js \
+#    $SRCDIR/src/crypto-js/src/PBKDF2.js \
+#    $SRCDIR/src/crypto-js/src/HMAC.js \
 
 export FILES="\
     $SRCDIR/src/header.js \
-    $SRCDIR/src/crypto-js/crypto.js \
-    $SRCDIR/src/crypto-js/sha256.js \
-    $SRCDIR/src/crypto-js/ripemd160.js \
+
+    $SRCDIR/src/crypto-js/src/Crypto.js \
+    $SRCDIR/src/crypto-js/src/CryptoMath.js \
+    $SRCDIR/src/crypto-js/src/BlockModes.js \
+    $SRCDIR/src/crypto-js/src/SHA256.js \
+    $SRCDIR/src/crypto-js/src/AES.js \
+
+    $SRCDIR/src/crypto-js-etc/ripemd160.js \
+
     $SRCDIR/src/jsbn/rng.js \
     $SRCDIR/src/jsbn/jsbn.js \
     $SRCDIR/src/jsbn/jsbn2.js \
