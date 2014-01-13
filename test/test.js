@@ -642,7 +642,8 @@ test("No compression, no EC multiply #1", function () {
 
   var wif = "5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR";
   var pw = "TestingOneTwoThree";
-  var encrypted = "6PRVWUbkzzsbcVac2qwfssoUJAN1Xhrg6bNk8J7Nzm5H7kxEbn2Nh2ZoGg";
+//  var encrypted = "6PRVWUbkzzsbcVac2qwfssoUJAN1Xhrg6bNk8J7Nzm5H7kxEbn2Nh2ZoGg";
+  var encrypted = "6PRVWUbkzAjcW7NSD7e5QhD5d7ThtHb38QLgj5ajVeLgUjfgz3cpiXNwUq";
 
   var decrypted = new Bitcoin.ECKey(wif).getEncryptedFormat(pw);
   equal(decrypted, encrypted, "Key encrypted successfully.");
@@ -654,7 +655,8 @@ test("No compression, no EC multiply #2", function () {
 
   var wif = "5HtasZ6ofTHP6HCwTqTkLDuLQisYPah7aUnSKfC7h4hMUVw2gi5";
   var pw = "Satoshi";
-  var encrypted = "6PRNFFkZc2NZ6dJqFfhRoFNMR9Lnyj7dYGrzdgXXVMXcxoKTePPX1dWByq";
+//  var encrypted = "6PRNFFkZc2NZ6dJqFfhRoFNMR9Lnyj7dYGrzdgXXVMXcxoKTePPX1dWByq";
+  var encrypted = "6PRNFFkZbins1dj6Y5wDqk8sBdULGiVqm8Yd2HAPdf2DoBfnGXRtgoh82f";
 
   var decrypted = new Bitcoin.ECKey(wif).getEncryptedFormat(pw);
   equal(decrypted, encrypted, "Key encrypted successfully.");
@@ -667,7 +669,8 @@ test("Compression, no EC multiply #1", function () {
 
   var wif = "L44B5gGEpqEDRS9vVPz7QT35jcBG2r3CZwSwQ4fCewXAhAhqGVpP";
   var pw = "TestingOneTwoThree";
-  var encrypted = "6PYNKZ1EAgYgmQfmNVamxyXVWHzK5s6DGhwP4J5o44cvXdoY7sRzhtpUeo";
+//  var encrypted = "6PYNKZ1EAgYgmQfmNVamxyXVWHzK5s6DGhwP4J5o44cvXdoY7sRzhtpUeo";
+  var encrypted = "6PYNKZ1EAuM1HMFx6NWXZTC625XmXTHzZi6UkDjji9wKGXLvUiDNaXGQaQ";
 
   var decrypted = new Bitcoin.ECKey(wif).getEncryptedFormat(pw);
   equal(decrypted, encrypted, "Key encrypted successfully.");
@@ -679,7 +682,8 @@ test("Compression, no EC multiply #2", function () {
 
   var wif = "KwYgW8gcxj1JWJXhPSu4Fqwzfhp5Yfi42mdYmMa4XqK7NJxXUSK7";
   var pw = "Satoshi";
-  var encrypted = "6PYLtMnXvfG3oJde97zRyLYFZCYizPU5T3LwgdYJz1fRhh16bU7u6PPmY7";
+//  var encrypted = "6PYLtMnXvfG3oJde97zRyLYFZCYizPU5T3LwgdYJz1fRhh16bU7u6PPmY7";
+  var encrypted = "6PYLtMnXuuzQFRt2TtkJjwPKsZmBsTYo5EVfbwM2KnTLvvcdAu6WdgM4ct";
 
   var decrypted = new Bitcoin.ECKey(wif).getEncryptedFormat(pw);
   equal(decrypted, encrypted, "Key encrypted successfully.");
