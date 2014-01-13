@@ -442,7 +442,7 @@ Bitcoin.ECDSA = (function () {
       }
 
       var pubKey = new Bitcoin.ECKey();
-      pubKey.pub = Q;
+      pubKey.setPub(Q.getEncoded());
       return pubKey;
     },
 
