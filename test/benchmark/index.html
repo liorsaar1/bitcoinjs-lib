@@ -15,12 +15,8 @@
 <script src="js/bootstrap-transition.js"></script>
 <script src="js/bootstrap-collapse.js"></script>
 <!-- bitcoinjs-lib code -->
-<script type="text/javascript" src="../../vendor/qunit/qunit-1.12.0.js"></script>
 <script type="text/javascript" src="../../vendor/sjcl/sjcl.min.js"></script>
 <script type="text/javascript" src="../../build/bitcoinjs-lib.js"></script>
-<script>
-  Bitcoin.setNetwork('prod');
-</script>
 <!-- Octane benchmark code -->
 <script type="text/javascript" src="base.js"></script>
 
@@ -31,95 +27,7 @@
 <script type="text/javascript" src="chain.js"></script>
 <script type="text/javascript" src="aes.js"></script>
 
-<script type="text/javascript">
-  var completed = 0;
-  var benchmarks = BenchmarkSuite.CountBenchmarks();
-  var success = true;
-  var latencyBenchmarks = ["Splay", "Mandreel"];
-
-  function ShowBox(name) {
-    var box = document.getElementById("Box-" + name);
-    box.style.visibility = 'visible';
-    var bar = document.getElementById("progress-bar").style.width = ""
-        + ((++completed) / benchmarks) * 100 + "%";
-    latencyBenchmarks.forEach(function(entry) {
-      if (name.valueOf() === entry.valueOf()) {
-        var box1 = document.getElementById("Box-" + name + "Latency");
-        box1.style.visibility = 'visible';
-      }
-    });
-  }
-
-  function AddResult(name, result) {
-    console.log(name + ': ' + result);
-    var box = document.getElementById("Result-" + name);
-    box.innerHTML = result;
-  }
-
-  function AddError(name, error) {
-    console.log(name + ": " + error.message);
-    if (error == "TypedArrayUnsupported") {
-      AddResult(name, '<b>Unsupported<\/b>');
-    } else if (error == "PerformanceNowUnsupported") {
-      AddResult(name, '<b>Timer error<\/b>');
-    } else {
-      AddResult(name, '<b>Error</b>');
-    }
-    success = false;
-  }
-
-  function AddScore(score) {
-    var status = document.getElementById("main-banner");
-    if (success) {
-      status.innerHTML = "BitcoinBench Score: " + score;
-    } else {
-      status.innerHTML = "BitcoinBench Score (incomplete): " + score;
-    }
-    document.getElementById("progress-bar-container").style.visibility = 'hidden';
-    document.getElementById("bottom-text").style.visibility = 'visible';
-    document.getElementById("inside-anchor").removeChild(document.getElementById("bar-appendix"));
-    document.getElementById("alertbox").style.visibility = 'hidden';
-  }
-
-  function Run() {
-    document.getElementById("main-banner").innerHTML = "Running BitcoinBench...";
-    // append the progress bar elements..
-    document.getElementById("bar-appendix").innerHTML = "<br/><div class=\"progress progress-striped\" id=\"progress-bar-container\" style=\"visibility:hidden\"><div class=\"bar\"style=\"width: 0%;\" id=\"progress-bar\"></div></div>";
-    var anchor = document.getElementById("run-octane");
-    var parent = document.getElementById("main-container");
-    parent.appendChild(document.getElementById("inside-anchor"));
-    parent.removeChild(anchor);
-
-    document.getElementById("startup-text").innerHTML="";
-
-    document.getElementById("progress-bar-container").style.visibility = 'visible';
-
-    BenchmarkSuite.RunSuites({
-      NotifyStart : ShowBox,
-      NotifyError : AddError,
-      NotifyResult : AddResult,
-      NotifyScore : AddScore
-    });
-  }
-
-  function CheckCompatibility() {
-    // If no Typed Arrays support, show warning label.
-    var hasTypedArrays = typeof Uint8Array != "undefined"
-        && typeof Float64Array != "undefined"
-        && typeof (new Uint8Array(0)).subarray != "undefined";
-
-    if (!hasTypedArrays) {
-      console.log("Typed Arrays not supported");
-      document.getElementById("alertbox").style.display="block";
-    }
-    if (window.document.URL.indexOf('auto=1') >= 0)
-      Run();
-  }
-
-  function Load() {
-    setTimeout(CheckCompatibility, 200);
-  }
-</script>
+<script type="text/javascript" src="main.js"></script>
 <!-- end Octane benchmark code -->
 
 <!-- Le styles -->
@@ -150,8 +58,7 @@ body {
   href="ico/apple-touch-icon-57-precomposed.png">
 </head>
 
-<body onLoad="Load()">
-
+<body>
   <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
 
@@ -169,7 +76,7 @@ body {
        <strong>Warning</strong> This JavaScript engine does not support Typed Arrays. You might want to run the <a href="http://v8.googlecode.com/svn/data/benchmarks/v7/run.html">V8 benchmark v7</a> instead.
     </div>
     <div id="main-container">
-    <a id="run-octane" href="javascript:Run()">
+    <a id="run-octane" xhref="javascript:Run()">
       <div class="hero-unit" id="inside-anchor">
         <h1 align="center" id="main-banner">Start BitcoinBench 1.0</h1>
         <div id="bar-appendix"></div>
