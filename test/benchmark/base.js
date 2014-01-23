@@ -25,6 +25,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// Initialize the PRNG.
+new SecureRandom().clientSideRandomInit();
+while (!sjcl.random.isReady()) {
+  sjcl.random.addEntropy(new Date().getTime(), 32, 'date');
+  sjcl.random.addEntropy(Math.random(), 32, 'external');
+}
 
 // Performance.now is used in latency benchmarks, the fallback is Date.now.
 var performance = performance || {};

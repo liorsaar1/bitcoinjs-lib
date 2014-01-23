@@ -1,4 +1,4 @@
-var DoubleSHA = new BenchmarkSuite('DoubleSHA', [15.08], [
+var DoubleSHA = new BenchmarkSuite('DoubleSHA', [28.249], [
   new Benchmark("DSHA", true, false, dsha),
 ]);
 

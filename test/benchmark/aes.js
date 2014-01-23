@@ -1,4 +1,4 @@
-var AES = new BenchmarkSuite('AES', [47], [
+var AES = new BenchmarkSuite('AES', [83.333], [
   new Benchmark("Encrypt", true, false, encrypt),
   new Benchmark("Decrypt", true, false, decrypt),
 ]);

@@ -1,4 +1,4 @@
-var Scrypt = new BenchmarkSuite('Scrypt', [53475], [
+var Scrypt = new BenchmarkSuite('Scrypt', [87719.298], [
   new Benchmark("Scrypt", true, false, scrypt),
 ]);
 

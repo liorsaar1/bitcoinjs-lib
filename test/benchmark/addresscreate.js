@@ -1,4 +1,4 @@
-var AddressCreate = new BenchmarkSuite('AddressCreate', [17361], [
+var AddressCreate = new BenchmarkSuite('AddressCreate', [25575.445], [
   new Benchmark("AddressCreate", true, false, create),
 ]);
 
