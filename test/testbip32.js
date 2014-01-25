@@ -84,7 +84,7 @@ function derivation2set( set ) {
       equal( result.xpub, vector.xpub, "xpub " + vector.chain );
     } catch( e ) {
       // primes OK - trap the exception
-      if (vector.chain.index("'") > 0) {
+      if (vector.chain.indexOf("'") > 0) {
         continue;
       }
       // non prime - FAIL
