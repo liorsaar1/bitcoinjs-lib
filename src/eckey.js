@@ -241,7 +241,7 @@ Bitcoin.ECKey = (function () {
   };
 
   ECKey.prototype.verify = function (hash, sig) {
-    return ECDSA.verify(hash, sig, this.getPub());
+    return ECDSA.verify(hash, sig, this.getPubPoint());
   };
 
   /**

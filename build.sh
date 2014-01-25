@@ -14,6 +14,7 @@ export FILES="\
     $SRCDIR/src/crypto-js/src/AES.js \
     $SRCDIR/src/crypto-js/src/PBKDF2.js \
     $SRCDIR/src/crypto-js/src/HMAC.js \
+    $SRCDIR/src/sha512.js \
 
     $SRCDIR/src/crypto-js-etc/ripemd160.js \
 

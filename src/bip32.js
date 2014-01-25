@@ -38,16 +38,10 @@ BIP32.prototype.init_from_bytes = function(bytes) {
     if( (this.version == MAINNET_PRIVATE || this.version == TESTNET_PRIVATE) && key_bytes[0] == 0 ) {
         this.eckey = new Bitcoin.ECKey(key_bytes.slice(1, 33));
         this.eckey.setCompressed(true);
-
-        var ecparams = getSECCurveByName("secp256k1");
-        var pt = ecparams.getG().multiply(this.eckey.priv);
-        this.eckey.pub = pt;
-        this.eckey.pubKeyHash = Bitcoin.Util.sha256ripe160(this.eckey.pub.getEncoded(true));
         this.has_private_key = true;
     } else if( (this.version == MAINNET_PUBLIC || this.version == TESTNET_PUBLIC) && (key_bytes[0] == 0x02 || key_bytes[0] == 0x03) ) {
-        this.eckey = new Bitcoin.ECKey();
-        this.eckey.pub = decompress_pubkey(key_bytes);
-        this.eckey.pubKeyHash = Bitcoin.Util.sha256ripe160(this.eckey.pub.getEncoded(true));
+        this.eckey = new Bitcoin.ECKey("0");
+        this.eckey.pubPoint = decompress_pubkey(key_bytes);
         this.eckey.setCompressed(true);
         this.has_private_key = false;
     } else {
@@ -88,7 +82,7 @@ BIP32.prototype.build_extended_public_key = function() {
     this.extended_public_key = this.extended_public_key.concat(this.chain_code);
 
     // Public key
-    this.extended_public_key = this.extended_public_key.concat(this.eckey.pub.getEncoded(true));
+    this.extended_public_key = this.extended_public_key.concat(this.eckey.getPub());
 }
 
 BIP32.prototype.extended_public_key_string = function(format) {
@@ -162,7 +156,7 @@ BIP32.prototype.derive = function(path) {
         var c = e[i];
 
         if( i == 0 ) {
-            if( c != 'm' ) throw new Exception("invalid path");
+            if( c != 'm' ) throw "invalid path";
             continue;
         }
 
@@ -198,7 +192,7 @@ BIP32.prototype.derive_child = function(i) {
         if( use_private ) {
             data = [0].concat(this.eckey.priv.toByteArrayUnsigned()).concat(ib);
         } else {
-            data = this.eckey.pub.getEncoded(true).concat(ib);
+            data = this.eckey.getPub().concat(ib);
         }
 
         var j = new jsSHA(Crypto.util.bytesToHex(data), 'HEX');   
@@ -214,35 +208,33 @@ BIP32.prototype.derive_child = function(i) {
         ret.chain_code  = ir;
 
         ret.eckey = new Bitcoin.ECKey(k.toByteArrayUnsigned());
-        ret.eckey.pub = ret.eckey.getPubPoint();
         ret.has_private_key = true;
 
     } else {
         // Public-key derivation is the same whether we have private key or not.
-        var data = this.eckey.pub.getEncoded(true).concat(ib);
+        var data = this.eckey.getPub().concat(ib);
         var j = new jsSHA(Crypto.util.bytesToHex(data), 'HEX');   
         var hash = j.getHMAC(Crypto.util.bytesToHex(this.chain_code), "HEX", "SHA-512", "HEX");
         var il = new BigInteger(hash.slice(0, 64), 16);
         var ir = Crypto.util.hexToBytes(hash.slice(64, 128));
 
         // Ki = (IL + kpar)*G = IL*G + Kpar
-        var k = ecparams.getG().multiply(il).add(this.eckey.pub);
+        var k = ecparams.getG().multiply(il).add(this.eckey.getPubPoint());
 
         ret = new BIP32();
         ret.chain_code  = ir;
 
-        ret.eckey = new Bitcoin.ECKey();
-        ret.eckey.pub = k;
+        ret.eckey = new Bitcoin.ECKey("0");
+        ret.eckey.setPub(k.getEncoded(true));
         ret.has_private_key = false;
     }
 
     ret.child_index = i;
-    ret.parent_fingerprint = this.eckey.pubKeyHash.slice(0,4);
+    ret.parent_fingerprint = this.eckey.getPubKeyHash().slice(0,4);
     ret.version = this.version;
     ret.depth   = this.depth + 1;
 
     ret.eckey.setCompressed(true);
-    ret.eckey.pubKeyHash = Bitcoin.Util.sha256ripe160(ret.eckey.pub.getEncoded(true));
 
     ret.build_extended_public_key();
     ret.build_extended_private_key();
@@ -268,30 +260,6 @@ function u32(f) { return uint(f,4); }
 function u64(f) { return uint(f,8); }
 
 function decompress_pubkey(key_bytes) {
-    var y_bit = u8(key_bytes.slice(0, 1)) & 0x01;
     var ecparams = getSECCurveByName("secp256k1");
-
-    // build X
-    var x     = BigInteger.ZERO.clone();
-    x.fromString(Crypto.util.bytesToHex(key_bytes.slice(1, 33)), 16);
-    
-    // get curve
-    var curve = ecparams.getCurve();
-    var a = curve.getA().toBigInteger();
-    var b = curve.getB().toBigInteger();
-    var p = curve.getQ();
-    
-    // compute y^2 = x^3 + a*x + b
-    var tmp = x.multiply(x).multiply(x).add(a.multiply(x)).add(b).mod(p);
-    
-    // compute modular square root of y (mod p)
-    var y = tmp.modSqrt(p);
-    
-    // flip sign if we need to
-    if( (y[0] & 0x01) != y_bit ) {
-        y = y.multiply(new BigInteger("-1")).mod(p);
-    }
-    
-    return new ECPointFp(curve, curve.fromBigInteger(x), curve.fromBigInteger(y));
+    return ecparams.getCurve().decodePointHex(Crypto.util.bytesToHex(key_bytes));
 }
-
