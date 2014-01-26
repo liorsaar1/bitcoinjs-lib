@@ -5,6 +5,7 @@ module("BIP0032");
 
 // from https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#Test_Vectors
 var bip32VectorsSet1 = [
+  [ "Set 1"],
   [ "000102030405060708090a0b0c0d0e0f" ],
   [ "m", "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8", "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi"],
   [ "m/0'", "xpub68Gmy5EdvgibQVfPdqkBBCHxA5htiqg55crXYuXoQRKfDBFA1WEjWgP6LHhwBZeNK1VTsfTFUHCdrfp1bgwQ9xv5ski8PX9rL2dZXvgGDnw", "xprv9uHRZZhk6KAJC1avXpDAp4MDc3sQKNxDiPvvkX8Br5ngLNv1TxvUxt4cV1rGL5hj6KCesnDYUhd7oWgT11eZG7XnxHrnYeSvkzY7d2bhkJ7"],
@@ -15,6 +16,7 @@ var bip32VectorsSet1 = [
 ];
 
 var bip32VectorsSet2 = [
+  [ "Set 2 "],
   [ "fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542" ],
   [ "m", "xpub661MyMwAqRbcFW31YEwpkMuc5THy2PSt5bDMsktWQcFF8syAmRUapSCGu8ED9W6oDMSgv6Zz8idoc4a6mr8BDzTJY47LJhkJ8UB7WEGuduB", "xprv9s21ZrQH143K31xYSDQpPDxsXRTUcvj2iNHm5NUtrGiGG5e2DtALGdso3pGz6ssrdK4PFmM8NSpSBHNqPqm55Qn3LqFtT2emdEXVYsCzC2U" ],
   [ "m/0", "xpub69H7F5d8KSRgmmdJg2KhpAK8SR3DjMwAdkxj3ZuxV27CprR9LgpeyGmXUbC6wb7ERfvrnKZjXoUmmDznezpbZb7ap6r1D3tgFxHmwMkQTPH", "xprv9vHkqa6EV4sPZHYqZznhT2NPtPCjKuDKGY38FBWLvgaDx45zo9WQRUT3dKYnjwih2yJD9mkrocEZXo1ex8G81dwSM1fwqWpWkeS3v86pgKt" ],
@@ -30,7 +32,7 @@ test("Derivation 1", function () {
   var set1 = new Bip32VectorSet( bip32VectorsSet1 );
   var set2 = new Bip32VectorSet( bip32VectorsSet2 );
   
-  var total = (set1.length()-1)*2 + (set2.length()-1)*2;
+  var total = set1.length()*2 + set2.length()*2;
   
   expect( total );
 
@@ -42,11 +44,11 @@ test("Derivation 1", function () {
 function derivation1set( set ) {
   var bip32M = new BIP32( set.get(0).xprv );
   // skipping vector 0 'm'
-  for( var i=1 ; i < set.length() ; i++ ) {
+  for( var i=0 ; i < set.length() ; i++ ) {
     var vector = set.get(i);
     var result = derivation1vector( bip32M, vector );
-    equal( result.xprv, vector.xprv, "xprv " + vector.chain );
-    equal( result.xpub, vector.xpub, "xpub " + vector.chain );
+    equal( result.xprv, vector.xprv, set.id + " :" + i + ": xprv " + vector.chain );
+    equal( result.xpub, vector.xpub, set.id + " :" + i + ": xpub " + vector.chain );
   }
 }
 
@@ -65,7 +67,7 @@ test("Derivation 2", function () {
   var set1 = new Bip32VectorSet( bip32VectorsSet1 );
   var set2 = new Bip32VectorSet( bip32VectorsSet2 );
   
-  var total = 1 ; // hard coded for now
+  var total = set1.length() + set2.length();
 
   expect( total );
   
@@ -77,18 +79,22 @@ test("Derivation 2", function () {
 function derivation2set( set ) {
   var bip32M = new BIP32( set.get(0).xpub );
   
-  for( var i=1 ; i < set.length() ; i++ ) {
+  for( var i=0 ; i < set.length() ; i++ ) {
     var vector = set.get(i);
-    try {
-      var result = derivation2vector( bip32M, vector );
-      equal( result.xpub, vector.xpub, "xpub " + vector.chain );
-    } catch( e ) {
-      // primes OK - trap the exception
-      if (vector.chain.indexOf("'") > 0) {
-        continue;
+
+    // Cannot do private key derivation without private key
+    if (vector.isPrime() ) {
+      // prime - must throw an exception    
+      try {
+        var result = derivation2vector( bip32M, vector );
+        ok( false, set.id + " :" + i + ": prime path generated a key " + vector.chain );
+      } catch( e ) {
+        ok( true, set.id + " :" + i + ": prime path generated an error " + vector.chain );
       }
-      // non prime - FAIL
-      throw( e );
+    } else {
+      // not prime - check key    
+      var result = derivation2vector( bip32M, vector );
+      equal( result.xpub, vector.xpub, set.id + " :" + i + ": xpub " + vector.chain );
     }
   }
 }
@@ -144,12 +150,18 @@ var Bip32Vector = function( values ) {
   this.xpub = values[1];
   this.xprv = values[2];
 }
+
+Bip32Vector.prototype.isPrime = function() {
+  return (this.chain.indexOf("'") > 0);
+}
+
 // vector set
 var Bip32VectorSet = function( sets ) {
   this.vectors = new Array();
-  this.master = sets[0][0];
+  this.id = sets[0][0];
+  this.master = sets[1][0];
   
-  for( var i = 1 ; i < sets.length ; i++) {
+  for( var i = 2 ; i < sets.length ; i++) {
     var set = sets[i];
     var vector = new Bip32Vector( set );
     this.vectors.push( vector );
@@ -162,4 +174,3 @@ Bip32VectorSet.prototype.get = function( index ) {
 Bip32VectorSet.prototype.length = function() {
   return this.vectors.length;
 }
-
