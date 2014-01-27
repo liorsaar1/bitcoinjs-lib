@@ -1,7 +1,7 @@
 //
 // BIP0032 derivations
 // -----------------------------------------------------------------------------
-module("BIP0032");
+module("bip32");
 
 // from https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#Test_Vectors
 var bip32VectorsSet1 = [
